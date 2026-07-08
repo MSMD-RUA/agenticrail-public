@@ -41,7 +41,7 @@ the signature in your own code, or paste a sequence ID into the
 [report tool](https://report.agenticrail.nz/report).
 
 - Public keys: [/spec/receipt-public-keys.json](https://agenticrail.nz/spec/receipt-public-keys.json)
-- Enforcement spec: [/spec/canonical-v1_1.txt](https://agenticrail.nz/spec/canonical-v1_1.txt)
+- Enforcement spec: [/spec/](https://agenticrail.nz/spec/) (current version, with links to every prior fingerprinted amendment)
 
 ## Try it
 
