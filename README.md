@@ -25,9 +25,11 @@ Two powers, at the one boundary you can't avoid — the moment before an AI acts
    — deterministically, before it runs. A computed decision, not an AI guessing
    whether to allow itself.
 2. **Witness.** Every decision — ALLOW or DENY — is written to a signed,
-   chain-linked receipt in immutable storage, before the action executes.
-   Nothing is recorded after the fact; nothing can be altered without breaking
-   the chain.
+   chain-linked receipt *before the action executes*. Nothing is recorded after
+   the fact, and no receipt can be altered without leaving a detectable break in
+   the chain. Sealed sequences are additionally copied to a separately
+   credentialed, write-once archive, so a rewrite by the operator is detectable
+   against the witness copy rather than trusted not to happen.
 
 ```
 agent → gate → ALLOW / DENY → sealed receipt
@@ -42,6 +44,33 @@ the signature in your own code, or paste a sequence ID into the
 
 - Public keys: [/spec/receipt-public-keys.json](https://agenticrail.nz/spec/receipt-public-keys.json)
 - Enforcement spec: [/spec/](https://agenticrail.nz/spec/) (current version, with links to every prior fingerprinted amendment)
+- Machine-readable API: [/openapi.json](https://agenticrail.nz/openapi.json) (OpenAPI 3.1)
+
+## Frameworks
+
+The gate is a plain HTTPS JSON call made before each step, so it works with any
+agent framework and does not care which model or vendor produced the request.
+
+- **Python SDK** (`agenticrail`) — purpose-built integrations for **LangGraph**
+  and **CrewAI**, with runnable examples for both
+- **JavaScript SDK** (`@agenticrail/core`) — **LangGraph.js**, Mastra, Genkit,
+  custom loops
+- **MCP** — agents speaking Model Context Protocol call the gate as a tool at
+  [mcp.agenticrail.nz](https://mcp.agenticrail.nz/) (`evaluate_step`,
+  `verify_receipt`)
+
+## Stated plainly
+
+Because these are the questions that get asked, and a straight answer costs less
+than a discovered one:
+
+- **Hosted, not self-hosted.** AgenticRail holds the receipt signing keys. That
+  residual is disclosed, and narrowed — not closed — by the independent archive.
+- **Not SOC 2 or ISO 27001 certified.** No certification is claimed anywhere.
+- **No public price list, no self-serve sign-up.** Evaluation is free and needs
+  no account; pricing is set per deployment.
+
+Longer answers to all three: [agenticrail.nz/faq/](https://agenticrail.nz/faq/)
 
 ## Try it
 
@@ -74,7 +103,7 @@ time) and give each request a unique `nonce`. Full field reference at
 |---|---|
 | Deterministic enforcement — the verdict is computed | A lie-detector for the AI. It proves *what* was done, not that the AI was *right* |
 | A tamper-evident, offline-verifiable record | A stop on hallucination, or a force on human attention |
-| Metadata and hashes only — no content inside a receipt | A data-sovereignty claim — keys and governance stay with you |
+| Metadata and hashes only — no content inside a receipt | A data-sovereignty claim. AgenticRail holds the receipt signing keys — which is precisely why every receipt ships with the exact preimage it was signed over, so you verify offline without trusting our verifier |
 
 ## Where it comes from
 
