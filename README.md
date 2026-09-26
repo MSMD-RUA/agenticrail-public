@@ -35,6 +35,27 @@ Two powers, at the one boundary you can't avoid — the moment before an AI acts
 agent → gate → ALLOW / DENY → sealed receipt
 ```
 
+## The problem, in the words it gets asked in
+
+- **Skipped steps and procedural hallucination.** An agent that skips a required
+  step and reports success leaves no log line, so the audit trail reads as
+  complete. The gate refuses the out-of-order step before it runs, and the
+  refusal is recorded.
+- **Policy enforcement point and pre-action authorization.** It sits in the path
+  of each step or tool call and returns ALLOW or DENY before it executes. Unlike
+  a classic PEP it judges against the run: the same call is allowed in order and
+  denied as a replay, out of order, or after the seal.
+- **Tamper-evident audit trail.** Every decision is a signed, hash-chained
+  receipt that verifies offline against a published key.
+- **Excessive agency (OWASP).** It controls the autonomy side: a step outside the
+  declared order is denied. It does not see how a permitted step is carried out,
+  and it does not replace access control.
+- **Claude Code, LangGraph, CrewAI.** One line adds it to Claude Code as an MCP
+  server: `claude mcp add --transport http agenticrail https://mcp.agenticrail.nz/`.
+  Through MCP the model decides when to call it; for binding enforcement, call
+  `/v1/evaluate` from your own code before the action runs. The Python SDK ships
+  LangGraph and CrewAI integrations.
+
 ## The proof — verify it yourself
 
 Every receipt is signed with **Ed25519** and verifiable **offline** against a
@@ -65,10 +86,14 @@ Because these are the questions that get asked, and a straight answer costs less
 than a discovered one:
 
 - **Hosted, not self-hosted.** AgenticRail holds the receipt signing keys. That
-  residual is disclosed, and narrowed — not closed — by the independent archive.
+  residual is disclosed, and narrowed — not closed — by the separately
+  credentialed archive.
 - **Not SOC 2 or ISO 27001 certified.** No certification is claimed anywhere.
-- **No public price list, no self-serve sign-up.** Evaluation is free and needs
-  no account; pricing is set per deployment.
+- **Self-serve at US$39 a month.** Evaluation is free and needs no account. A
+  developer key moves your sequences off the public demo lane, so they stop
+  being world-readable and are kept instead of deleted after 30 days.
+  [Buy a developer key](https://buy.stripe.com/3cIdR983LffN2JMefoeQM02).
+  Deployments are arranged directly.
 
 Longer answers to all three: [agenticrail.nz/faq/](https://agenticrail.nz/faq/)
 
@@ -103,7 +128,7 @@ time) and give each request a unique `nonce`. Full field reference at
 |---|---|
 | Deterministic enforcement — the verdict is computed | A lie-detector for the AI. It proves *what* was done, not that the AI was *right* |
 | A tamper-evident, offline-verifiable record | A stop on hallucination, or a force on human attention |
-| Metadata and hashes only — no content inside a receipt | A data-sovereignty claim. AgenticRail holds the receipt signing keys — which is precisely why every receipt ships with the exact preimage it was signed over, so you verify offline without trusting our verifier |
+| No request `inputs` inside a receipt, only a hash of the whole request. **`attestation` is published verbatim**, and on the public demo lane anyone can read it | A data-sovereignty claim. AgenticRail holds the receipt signing keys — which is precisely why every receipt ships with the exact preimage it was signed over, so you verify offline without trusting our verifier |
 
 ## Where it comes from
 
